@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/show-hint.min.css"
+        integrity="sha512-OmcLQEy8iGiD7PSm85s06dnR7G7C9C0VqahIPAj/KHk5RpOCmnC6R2ob1oK4/uwYhWa9BF1GC6tzxsC8TIx7Jg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/css-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/html-hint.min.js"
+        integrity="sha512-oxBKDzXElkyh3mQC/bKA/se1Stg1Q6fm7jz7PPY2kL01jRHQ64IwjpZVsuZojcaj5g8eKSMY9UJamtB1QR7Dmw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/javascript-hint.min.js"
+        integrity="sha512-omIxBxPdObb7b3giwJtPBiB86Mey/ds7qyKFcRiaLQgDxoSR+UgCYEFO7jRZzPOCZAICabGCraEhOSa71U1zFA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/show-hint.min.js"
+        integrity="sha512-yhmeAerubMLaGAsyS7sE8Oqub6GeTkBDQpkXo2JKHgg7JOCudQvcbDQc5rPxdl7MqcDusTJzSy+ODlyzAwETfQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .header {
+            width: 100%;
+            height: 50px;
+            background: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header button {
+            padding: 10px 20px;
+            background: #f5f5f5;
+            color: #111;
+            font-size: 16px;
+            font-weight: 600;
+            border: 0;
+            outline: 0;
+            cursor: pointer;
+            border-radius: 0px;
+        }
+
+        .editor {
+            width: 100%;
+            height: auto;
+            /* background-color: red; */
+            display: flex;
+        }
+
+        .editor .code {
+            width: 70%;
+            border-right: 1px solid #888;
+            padding: 20px;
+            ;
+        }
+
+        .editor .code>div {
+            width: 100%;
+            height: 400px;
+            border-bottom: 1px solid #888;
+        }
+
+        .editor .preview {
+            width: calc(100%- 50px);
+            height: 100%;
+        }
+
+        .editor .preview iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .CodeMirror {
+            height: auto;
+        }
+
+        .CodeMirror-lines {
+            cursor: text;
+            /* min-height: 270px !important; */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <button id="run-btn">Run</button>
+    </div>
+    <div class="editor">
+        <div class="code">
+            <h2>HTML</h2>
+            <div class="html-code">
+
+            </div>
+            <h2>CSS</h2>
+            <div class="css-code">
+
+            </div>
+            <h2>Javascript</h2>
+            <div class="js-code">
+
+            </div>
+        </div>
+        <div class="preview">
+            <iframe id="preview-window"></iframe>
+        </div>
+    </div>
+    <script>
+
+        const html = CodeMirror(document.querySelector(".editor .code .html-code"), {
+            lineNumbers: true,
+            autoCloseTags: true,
+            matchBrakcets: true,
+            tabSize: 4,
+            mode: "xml",
+            onKeyEvent: function (e, s) {
+                if (s.type == "keyup") {
+                    CodeMirror.showHint(e);
+                }
+            }
+
+        });
+        const css = CodeMirror(document.querySelector(".editor .code .css-code"), {
+            lineNumbers: true,
+            autoCloseTags: true,
+            matchBrakcets: true,
+            tabSize: 4,
+            mode: "css"
+        });
+        const js = CodeMirror(document.querySelector(".editor .code .js-code"), {
+            lineNumbers: true,
+            autoCloseTags: true,
+            matchBrakcets: true,
+            tabSize: 4,
+            extraKeys: { "Ctrl-Space": "autocomplete" },
+            mode: { name: "javascript", globalVars: true }
+
+        });
+
+        document.querySelector("#run-btn").addEventListener("click", function () {
+            let htmlCode = html.getValue();
+            let cssCode = "<style>" + css.getValue() + "</style>";
+            let jsCode = "<scri" + "pt>" + js.getValue() + "</scri" + "pt>";
+            let pw = document.querySelector("#preview-window").contentWindow.document;
+            pw.open();
+            pw.write(htmlCode + cssCode + jsCode);
+            pw.close();
+        })
+
+        CodeMirror.commands.autocomplete = function (cm) {
+            alert(1);
+            var doc = cm.getDoc();
+            var POS = doc.getCursor();
+            var mode = CodeMirror.innerMode(cm.getMode(), cm.getTokenAt(POS).state).mode.name;
+
+            console.log(mode);
+
+            if (mode == 'xml') { //html depends on xml
+                CodeMirror.showHint(cm, CodeMirror.hint.html);
+            } else if (mode == 'javascript') {
+                CodeMirror.showHint(cm, CodeMirror.hint.javascript);
+            } else if (mode == 'css') {
+                CodeMirror.showHint(cm, CodeMirror.hint.css);
+            }
+        };
+
+    </script>
+</body>
+
+</html>
